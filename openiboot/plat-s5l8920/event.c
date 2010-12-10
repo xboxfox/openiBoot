@@ -5,6 +5,7 @@
 #include "interrupt.h"
 #include "hardware/timer.h"
 #include "openiboot-asmhelpers.h"
+#include "util.h"
 
 Event EventList;
 
@@ -12,19 +13,12 @@ static void init_event_list();
 static void eventTimerHandler();
 
 int event_setup() {
-	// In our implementation, we set TicksPerSec when we setup the clock
-	// so we don't have to do it here
-
+    RTCHasInit = TRUE;
 	init_event_list();
 
-	Timers[EventTimer].handler2 = eventTimerHandler;
-
-	// Initialize the timer hardware for something that goes off once every 100 Hz.
-	// The handler for the timer will reset it so it's periodic
-	timer_init(EventTimer, TicksPerSec/100, 0, 0, 0, FALSE, FALSE, FALSE, FALSE, TRUE);
-
-	// Turn the timer on
-	timer_on_off(EventTimer, ON);
+	SET_REG(TIMER_REGISTER_TICK, TIMER_STATE_MANUALUPDATE);
+    interrupt_install(TIMER_IRQ, eventTimerHandler, 0);
+    interrupt_enable(TIMER_IRQ);
 	return 0;
 }
 
@@ -36,6 +30,8 @@ static void init_event_list() {
 static void eventTimerHandler() {
 	uint64_t curTime;
 	Event* event;
+
+    SET_REG(TIMER_REGISTER_TICK, TIMER_STATE_MANUALUPDATE);
 
 	curTime = timer_get_system_microtime();
 
@@ -58,6 +54,11 @@ static void eventTimerHandler() {
 		} else {
 			// The event queue is sorted, so we can just stop looping on the first
 			// event that hasn't been triggered
+
+			uint64_t timeout = (event->deadline - curTime) * (TicksPerSec/1000000);
+			uint32_t time = (timeout > 0xFFFFFFFF) ? 0xFFFFFFFF : (timeout & 0xFFFFFFFF);
+			SET_REG(TIMER_REGISTER, time);
+			SET_REG(TIMER_REGISTER_TICK, TIMER_STATE_START);
 			break;
 		}
 	}
@@ -78,11 +79,12 @@ int event_add(Event* newEvent, uint64_t timeout, EventHandler handler, void* opa
 		newEvent->list.prev = NULL;
 	}
 
+	newEvent->opaque = opaque;
 	newEvent->handler = handler;
 	newEvent->interval = timeout;
 	newEvent->deadline = timer_get_system_microtime() + timeout;
-	newEvent->opaque = opaque;
 
+	int first = 1;
 	Event* insertAt = &EventList;
 
 	while(insertAt != insertAt->list.next) {
@@ -90,6 +92,7 @@ int event_add(Event* newEvent, uint64_t timeout, EventHandler handler, void* opa
 		if(insertAt->deadline > newEvent->deadline) {
 			break;
 		}
+		first = 0;
 		insertAt = insertAt->list.next;
 		if(insertAt == &EventList) {
 			// We're after the whole list, so just insert after everyone else (after head)
@@ -102,6 +105,14 @@ int event_add(Event* newEvent, uint64_t timeout, EventHandler handler, void* opa
 	newEvent->list.prev = insertAt->list.prev;
 	((Event*)insertAt->list.prev)->list.next = newEvent;
 	insertAt->list.prev = newEvent;
+
+	if(first)
+	{
+		timeout *= (TicksPerSec/1000000); // Really bad practice, but works nicely on this hardware.
+		uint32_t time = (timeout > 0xFFFFFFFF) ? 0xFFFFFFFF : (timeout & 0xFFFFFFFF);
+		SET_REG(TIMER_REGISTER, time);
+    	SET_REG(TIMER_REGISTER_TICK, TIMER_STATE_START);
+	}
 
 	LeaveCriticalSection();
 
