@@ -37,7 +37,6 @@ int clock_setup() {
 		clockDivisor = CLOCK_CLOCKDIVIDER(config);
 	} else {
 		clockDivisor = 1;
-		bufferPrintf("PLL %d: off.\n", clockPLL);
 	}
 	
 	// Bus divisor
@@ -141,6 +140,9 @@ int clock_setup() {
 
 	TicksPerSec = FixedFrequency / 2;
 
+	// Set the base divisor
+	clock_set_base_divisor(ClockDivisorCode0);
+
 	return 0;
 }
 
@@ -217,7 +219,7 @@ void clock_gate_switch(uint32_t gate, OnOff on_off) {
 	}
 }
 
-int clock_set_base_clock_divisor(ClockDivisorCode code) {
+int clock_set_base_divisor(ClockDivisorCode code) {
 	int baseDivisor;
 	
 	switch(code) {

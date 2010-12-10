@@ -19,6 +19,30 @@ void OpenIBootConsole()
 	DebugPrintf("                    DEBUG MODE\r\n");
 }
 
+#ifdef CONFIG_S5L8720
+//TODO: REMOVEME HACKHACKHACK (boot from an installed openiboot on ipt2g if volup is pressed)
+
+#include "lcd.h"
+#include "images.h"
+#include "actions.h"
+#include "framebuffer.h"
+#include "timer.h"
+#include "buttons.h"
+#include "gpio.h"
+#include "nor.h"
+
+void load_iboot() {
+	framebuffer_clear();
+	bufferPrintf("Loading iOS...");
+	Image* image = images_get(fourcc("ibox"));
+	if(image == NULL)
+		image = images_get(fourcc("ibot"));
+	void* imageData;
+	images_read(image, &imageData);
+	chainload((uint32_t)imageData);
+}
+#endif
+
 void OpenIBootStart()
 {
 	platform_init();
@@ -27,6 +51,16 @@ void OpenIBootStart()
 	init_boot_modules();
 
 	OpenIBootMain();
+
+#ifdef CONFIG_S5L8720
+	//TODO: REMOVEME HACKHACKHACK (boot from an installed openiboot on ipt2g if volup is pressed)	
+	while(1) {
+		task_yield();
+		if (!gpio_pin_state(BUTTONS_VOLUP)) {
+			load_iboot();
+		}
+	}
+#endif
 
 	tasks_run(); // Runs forever.
 }

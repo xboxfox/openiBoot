@@ -3,6 +3,11 @@
 
 #include "openiboot.h"
 
+//TODO: REMOVEME HACKHACKHACKHACK (need this to get ipt2g to compile)
+#ifdef CONFIG_S5L8720
+#define NO_HFS
+#endif
+
 typedef enum _BootType
 {
 	kBootAuto,

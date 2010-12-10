@@ -445,7 +445,10 @@ void boot_linux(const char* args) {
 	uint32_t mach_type = MACH_APPLE_IPHONE;
 
 	EnterCriticalSection();
+#ifndef CONFIG_S5L8720
+	//TODO: REMOVEME HACKHACKHACK (need this to get ipt2g to compile)
 	dma_shutdown();
+#endif
 	wdt_disable();
 	arm_disable_caches();
 	mmu_disable();
@@ -637,6 +640,10 @@ int setup_boot()
 
 	case kBootLinux:
 		{
+#ifdef CONFIG_S5L8720
+			//TODO: S5L8720, remove this #ifdef this when linux actually boots
+			return 0;
+#else
 			if(currentEntry->kernel == NULL)
 			{
 				bufferPrintf("setup: Can't boot linux without a kernel!\n");
@@ -675,6 +682,7 @@ int setup_boot()
 				boot_linux(currentEntry->path);
 
 			return 0;
+#endif
 		}
 
 	case kBootChainload:

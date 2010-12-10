@@ -1039,8 +1039,8 @@ static void handleRxInterrupts(int endpoint) {
 
 	if(outInterruptStatus[endpoint] & USB_EPINT_OUTTknEPDis) {
 		OutEPRegs[endpoint].interrupt = USB_EPINT_OUTTknEPDis;
-		if(endpoint > 0)
-			bufferPrintf("out %d tnk ep dis\n", endpoint);
+		//if(endpoint > 0)
+		//	bufferPrintf("out %d tnk ep dis\n", endpoint);
 
 		//advanceMessageQueue(endpoint);
 	}
@@ -1747,7 +1747,7 @@ int usb_shutdown()
 	clock_gate_switch(USB_OTGCLOCKGATE, OFF);
 	clock_gate_switch(USB_PHYCLOCKGATE, OFF);
 
-#ifndef USB_PHY_2G
+#ifdef USB_PHY_1G
 	power_ctrl(POWER_USB, OFF);
 #endif
 

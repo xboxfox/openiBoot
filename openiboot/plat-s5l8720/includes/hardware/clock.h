@@ -77,10 +77,10 @@ typedef struct {
 
 // Base clock divisor
 #define CLOCK_BASE_DIVISOR_MASK 0xf
-#define CLOCK_BASE_DIVISOR_0 0x1
-#define CLOCK_BASE_DIVISOR_1 0x5
-#define CLOCK_BASE_DIVISOR_2 0xB
-#define CLOCK_BASE_DIVISOR_3 0x4
+#define CLOCK_BASE_DIVISOR_0 0x0
+#define CLOCK_BASE_DIVISOR_1 0x4
+#define CLOCK_BASE_DIVISOR_2 0xA
+#define CLOCK_BASE_DIVISOR_3 0x3
 
 #endif
 
