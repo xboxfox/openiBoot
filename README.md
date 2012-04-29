@@ -49,6 +49,9 @@ Change into the openiboot subfolder
 **For iPod Touch 1G, run:**
 `scons iPodTouch1G`
 
+**For iPod Touch 2G, run:**
+`scons iPodTouch2G`
+
 **For iPhone 2G, run:**
 `scons iPhone2G`
 
