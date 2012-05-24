@@ -96,7 +96,7 @@ Running/Installing
 
 *NOTE: For the 3GS, iPhone4, iPad and Apple TV 2G, you must put your device into DFU mode instead.*
 
-**For iPhone 2G, iPhone 3G & iPod Touch 1G run (substituting *device* and *revision* with the actual device, for example: iphone_3g_openiboot.img3):** 
+**For iPhone 2G, iPhone 3G, iPod Touch 1G & iPod Touch 2G (MB Model) run (substituting *device* and *revision* with the actual device, for example: iphone_3g_openiboot.img3):** 
 `../utils/syringe/utilities/loadibec device_revision_openiboot.img3`
 
 **For newer devices run: (substituting *device* and *revision* with the actual device, for example: iphone_4_openiboot.bin):**
@@ -107,7 +107,7 @@ You should now see openiBoot on your phone, use the volume buttons to scroll to 
 **Run the client:**
 `../utils/oibc/oibc`
 
-*NOTE: You cannot install openiboot on an iPhone 4, iPad or new bootrom 3GS/iPT2G - you can only run it*
+*NOTE: You cannot install openiboot on an iPhone 4, iPad or new bootrom 3GS/iPT2G (MC Model)- you can only run it*
 
 You should now see the same output on your computer, as is on your phone's screen.
 
